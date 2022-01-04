@@ -1,0 +1,37 @@
+> ESTIMATES <- function(s,n){
++ # Simple demand parameter estimation function  -  keep it simple
++ # Randomness in estimates is unavoidable
++ # s =  vector of past sales in time order
++ # n = number of elements in s to be utilized in estimation
++ v <- mean(tail(s,n)) # Mean of last n sales elements  -  for input into optimal OUTL calculation
++ v <- c(v,sd(tail(s,n))) # Append standard deviation of last n sales elements  -  for input into optimal OUTL calculation
++ v <- c(v,v[2]^2/v[1]) # Append conservative estimate of average transaction quantity  -  for checking  -  should be
++ # around 1 for pure Poisson demand
++ v <- c(v,v[1]/v[3]) # Append conservative estimate of order arrival rate  -  for checking
++ v}
+> 
+> x <- read.csv(file="c://RETAIL/DEMANDS.csv",header=TRUE)
+> attach(x)
+The following objects are masked from x (pos = 3):
+
+    cpois_dmds_high, cpois_dmds_low, pois_dmds_high, pois_dmds_low
+
+> 
+> ESTIMATES(pois_dmds_low,156)
+[1] 3.9102564 1.9654165 0.9878794 3.9582324
+> 
+> ESTIMATES(cpois_dmds_low,156)
+[1] 4.051282 3.371216 2.805308 1.444149
+> 
+> ESTIMATES(pois_dmds_high,156)
+[1] 64.173077  8.921278  1.240227 51.742994
+> 
+> ESTIMATES(cpois_dmds_high,156)
+[1] 63.87821 11.95440  2.23719 28.55288
+> 
+> ESTIMATES(pois_dmds_high,52)
+[1] 65.000000 10.322258  1.639216 39.653110
+> 
+> ESTIMATES(cpois_dmds_high,52)
+[1] 64.000000 11.629914  2.113358 30.283560
+> 

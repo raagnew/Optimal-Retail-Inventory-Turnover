@@ -1,0 +1,39 @@
+Python 3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)]
+Type "copyright", "credits" or "license" for more information.
+
+IPython 7.22.0 -- An enhanced Interactive Python.
+
+import pandas as pd
+x = pd.read_csv("c://RETAIL/DEMANDS.csv")
+
+def ESTIMATES(s,n):
+    mn = x[s][-n:].mean()
+    sd = x[s][-n:].std()
+    atq = sd**2/mn
+    aor = mn/atq
+    return [[mn],[sd],[atq],[aor]]
+
+print()
+print("pois_dmds_low_156",str(ESTIMATES("pois_dmds_low",156)))
+print()
+print("cpois_dmds_low_156",str(ESTIMATES("cpois_dmds_low",156)))
+print()
+print("pois_dmds_high_156",str(ESTIMATES("pois_dmds_high",156)))
+print()    
+print("cpois_dmds_high_156",str(ESTIMATES("cpois_dmds_high",156)))
+print()
+print("pois_dmds_high_52",str(ESTIMATES("pois_dmds_high",52)))
+print()
+print("cpois_dmds_high_52",str(ESTIMATES("cpois_dmds_high",52)))
+
+pois_dmds_low_156 [[3.91025641025641], [1.9654164620541572], [0.9878794288736115], [3.9582324481793467]]
+
+cpois_dmds_low_156 [[4.051282051282051], [3.371215673897744], [2.805308289097589], [1.4441486046388385]]
+
+pois_dmds_high_156 [[64.17307692307692], [8.921278269134698], [1.2402273628041414], [51.74299394425733]]
+
+cpois_dmds_high_156 [[63.87820512820513], [11.954398811784694], [2.237189518152242], [28.55288057176486]]
+
+pois_dmds_high_52 [[65.0], [10.322258454807415], [1.63921568627451], [39.65311004784689]]
+
+cpois_dmds_high_52 [[64.0], [11.62991409945853], [2.113357843137255], [30.283560452305018]]

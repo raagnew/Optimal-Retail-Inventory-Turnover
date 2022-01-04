@@ -1,0 +1,79 @@
+> # This simple simulation lines up with one of the model cases
+> # Focus on review periods, not on individual demands within them
+> # Generate 520 half-week review periods (5 years) with Poisson demand
+> # Display results for final 416 periods (4 years) 
+> # Poisson demand with mean 16 units per week, or 8 per half week
+> # 3 week lead time (6 periods) and 0.5 week review period (one period)
+> # Unit price and cost are $3.00 and $2.50 respectively
+> # Model optimal Order-Up-To-Level (OUTL) is 73 units
+> # Model service level is 99.49% and model average inventory is 21.01 units
+> # DMD = Poisson demand in each review period
+> # OH = On-Hand inventory at the beginning of each review period before delivery (start at 17 units) 
+> # DEL = delivery of previous order at the beginning of a review period (start at 6 deliveries, 8 units each)
+> # SALES = unit sales during review period <= DMD
+> # LOST_SALES = DMD - SALES  =  lost unit sales due to insufficient stock
+> # OO = On-Order units at the beginning of a review period, after delivery but prior to ordering
+> # ORD = Order units at beginning of review period
+> set.seed(17) # Set random number seed for reproducibility
+> DMD <- rpois(520,8) # Generate five years of half-week Poisson demands with mean 8
+> DEL <- SALES <- LOST_SALES <- OH <- OO <- ORD <- rep(0,520) # Initialization of vectors
+> for (i in 1:520){
++ DEL[i] <- ifelse(i <= 6,8,ORD[i-6])
++ OH[i] <- ifelse(i == 1,17,max(0,OH[i-1] + DEL[i-1] - DMD[i-1]))
++ SALES[i] <- min(OH[i] + DEL[i],DMD[i])
++ LOST_SALES[i] <- DMD[i] - SALES[i]
++ OO[i] <- ifelse(i == 1,40,OO[i-1] + ORD[i-1] - DEL[i])
++ ORD[i] <- max(0,73 - OH[i] - DEL[i] - OO[i])}
+> 
+> I <- 105:520 # Final simulated four years
+> 
+> # Total Demand
+> sum(DMD[I])
+[1] 3312
+> 
+> # Total Sales
+> sum(SALES[I])
+[1] 3308
+> 
+> # Total Lost Sales due to insufficient stock
+> sum(LOST_SALES[I]) 
+[1] 4
+> 
+> # Service Level (percent of demand served) during final 4 years (compare with model lower bound 99.49%)
+> 100*sum(SALES[I])/sum(DMD[I])
+[1] 99.87923
+> 
+> # Approximate Average Inventory Units during final 4 years (compare with model lower bound 21.01 units)
+> mean(OH[I] + DEL[I] - SALES[I]/2)
+[1] 21.2524
+> 
+> PERIOD <- rep(I,4)
+> UNITS <- c(ORD[I],OO[I],DEL[I],OH[I])
+> COMPONENT <- c(rep("1_ORDERS",416),rep("2_ON_ORDER",416),rep("3_DELIVERIES",416),rep("4_ON_HAND",416))
+> DF1 <- data.frame(PERIOD,UNITS,COMPONENT)
+> 
+> library(ggplot2)
+Warning message:
+package ‘ggplot2’ was built under R version 4.1.2 
+> pdf("c:/RETAIL/SIMULATION_PLOTS.pdf",onefile=TRUE)
+> ggplot(DF1,aes(x = PERIOD,y = UNITS,fill = COMPONENT))+geom_area()+ggtitle("SIMULATED INVENTORY POSITION COMPONENTS (OUTL = 73)")
+> 
+> I <- 250:350 # Expanded middle section
+> 
+> PERIOD <- rep(I,4)
+> UNITS <- c(ORD[I],OO[I],DEL[I],OH[I])
+> COMPONENT <- c(rep("1_ORDERS",101),rep("2_ON_ORDER",101),rep("3_DELIVERIES",101),rep("4_ON_HAND",101))
+> DF2 <- data.frame(PERIOD,UNITS,COMPONENT)
+> 
+> ggplot(DF2,aes(x = PERIOD,y = UNITS,fill = COMPONENT))+geom_area()+ggtitle("SIMULATED INVENTORY POSITION COMPONENTS (OUTL = 73)")
+> 
+> PERIOD <- rep(I,2)
+> UNITS <- c(LOST_SALES[I],SALES[I])
+> COMPONENT <- c(rep("LOST_SALES",101),rep("SALES",101))
+> DF3 <- data.frame(PERIOD,UNITS,COMPONENT)
+> 
+> ggplot(DF3,aes(x = PERIOD,y = UNITS,fill = COMPONENT))+geom_area()+ggtitle("SIMULATED SALES & LOST SALES")
+> dev.off()
+null device 
+          1 
+> 
